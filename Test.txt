@@ -1,0 +1,40 @@
+name: Salesforce Delta Code Deployment
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Install Salesforce CLI
+      run: |
+        # Download and install Salesforce CLI
+        wget https://developer.salesforce.com/media/salesforce-cli/sfdx-linux-amd64.tar.xz -O sfdx.tar.xz
+        mkdir sfdx
+        tar xJf sfdx.tar.xz -C sfdx --strip-components 1
+        ./sfdx/install
+        echo 'export PATH=./sfdx/bin:$PATH' >> $GITHUB_ENV
+        echo 'export SFDX_AUTOUPDATE_DISABLE=true' >> $GITHUB_ENV
+
+    - name: Authenticate with Salesforce
+      run: |
+        # Authenticate with Salesforce using OAuth 2.0 username-password flow
+        sfdx force:auth:username:password -u ${{ secrets.SALESFORCE_USERNAME }} -p ${{ secrets.SALESFORCE_PASSWORD }} -r https://login.salesforce.com -a myorg
+
+    - name: Determine Changed Metadata
+      run: |
+        # Determine changed metadata using Git diff
+        CHANGED_METADATA=$(git diff --name-only HEAD^..HEAD)
+        echo "Changed metadata: $CHANGED_METADATA" >> $GITHUB_ENV
+
+    - name: Deploy Changed Metadata to Salesforce
+      run: |
+        # Deploy changed metadata to Salesforce org
+        sfdx force:source:deploy -p $CHANGED_METADATA -u myorg -w 10
