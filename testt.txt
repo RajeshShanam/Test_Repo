@@ -73,3 +73,6 @@ This code is designed to extract specific test names from a file (`pr_body.txt`)
 - **Performance**: Writing to the file for each test could be inefficient; accumulating tests in an array and writing them at once might be better.
 
 Let me know if you have any specific questions or if there's something else you'd like to explore!
+
+
+Can you please share the automation maturity in the landscape? Has there been automation implemented for repeated tasks?
