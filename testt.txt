@@ -1,26 +1,75 @@
-const fs = require('fs');
-const readline = require('readline')
+Sure! Let’s break down the provided JavaScript code step by step.
 
-async function extractTests(){
+### Overview
+This code is designed to extract specific test names from a file (`pr_body.txt`) and write them to another file (`testsToRun.txt`). It checks for lines that contain a specific format related to "Apex" tests.
 
-    //by default we specify that all tests should run
-    let testsFile = __dirname+'/testsToRun.txt';
-    await fs.promises.writeFile(testsFile,'all');
+### Code Breakdown
 
-    const lines = readline.createInterface({
-        input: fs.createReadStream(__dirname+'/pr_body.txt'),
-        crlfDelay: Infinity
-    });
+1. **Imports**:
+   ```javascript
+   const fs = require('fs');
+   const readline = require('readline');
+   ```
+   - The `fs` module is used for file system operations (reading/writing files).
+   - The `readline` module is used for reading input from a stream (in this case, from a file).
 
-    for await (const line of lines) {
-        //special delimeter for apex tests
-        if(line.includes('Apex::[') && line.includes(']::Apex')){
+2. **Function Definition**:
+   ```javascript
+   async function extractTests() {
+   ```
+   - Defines an asynchronous function called `extractTests`.
 
-            let tests = line.substring(7,line.length-7);
-            await fs.promises.writeFile(testsFile,tests);
-            await fs.promises.appendFile(testsFile,'\n');
-        }
-    }
-}
+3. **Default File Creation**:
+   ```javascript
+   let testsFile = __dirname+'/testsToRun.txt';
+   await fs.promises.writeFile(testsFile,'all');
+   ```
+   - Sets `testsFile` to the path of `testsToRun.txt` in the current directory.
+   - Initializes this file with the content `'all'`.
 
-extractTests();
+4. **Reading Lines from the Input File**:
+   ```javascript
+   const lines = readline.createInterface({
+       input: fs.createReadStream(__dirname+'/pr_body.txt'),
+       crlfDelay: Infinity
+   });
+   ```
+   - Creates a readline interface to read lines from `pr_body.txt`.
+   - `crlfDelay: Infinity` ensures that both CRLF and LF line endings are handled.
+
+5. **Processing Each Line**:
+   ```javascript
+   for await (const line of lines) {
+       if(line.includes('Apex::[') && line.includes(']::Apex')){
+   ```
+   - Loops through each line of `pr_body.txt`.
+   - Checks if the line contains the substring `'Apex::['` and `']::Apex'`. This is the special delimiter indicating it contains an Apex test.
+
+6. **Extracting Test Names**:
+   ```javascript
+   let tests = line.substring(7,line.length-7);
+   await fs.promises.writeFile(testsFile,tests);
+   await fs.promises.appendFile(testsFile,'\n');
+   ```
+   - If the condition is true, it extracts the test name from the line:
+     - `line.substring(7,line.length-7)` removes the first 7 characters and the last 7 characters (presumably to isolate the test name).
+   - Writes the test name to `testsToRun.txt`, overwriting the previous content.
+   - Appends a newline character after each test name.
+
+7. **Function Call**:
+   ```javascript
+   extractTests();
+   ```
+   - Calls the `extractTests` function to execute the code.
+
+### Summary
+- The script initializes a file to list tests to run.
+- It reads a specified input file line by line, looking for specific patterns.
+- When it finds those patterns, it extracts the test names and writes them to the output file.
+
+### Potential Improvements
+- **Error Handling**: Consider adding error handling (try-catch blocks) to manage file read/write errors.
+- **Multiple Tests**: If multiple tests can be extracted from a single line, the logic may need to be adjusted to handle that.
+- **Performance**: Writing to the file for each test could be inefficient; accumulating tests in an array and writing them at once might be better.
+
+Let me know if you have any specific questions or if there's something else you'd like to explore!
