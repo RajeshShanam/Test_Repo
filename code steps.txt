@@ -1,0 +1,151 @@
+Sure! Below is a structured presentation based on your GitHub Actions workflow for Salesforce DevOps. Each slide includes key points and explanations related to the workflow code. You can adapt the content according to your audience and presentation style.
+
+### Slide 1: Title Slide
+- **Title:** Automating Salesforce DevOps with GitHub Actions
+- **Subtitle:** Delta Deployments and Validation in QABRAVO
+- **Your Name and Date**
+
+---
+
+### Slide 2: Agenda
+1. Introduction to Salesforce DevOps
+2. Overview of GitHub Actions
+3. Workflow Breakdown
+4. Key Components
+5. Deployment and Testing Strategy
+6. Email Notifications
+7. Conclusion and Q&A
+
+---
+
+### Slide 3: Introduction to Salesforce DevOps
+- **Definition:** Salesforce DevOps integrates development and operations for continuous delivery.
+- **Goal:** Enhance collaboration, speed up deployments, and ensure code quality.
+
+---
+
+### Slide 4: Overview of GitHub Actions
+- **What is GitHub Actions?**
+  - CI/CD tool integrated with GitHub for automating workflows.
+  - Allows creating custom workflows based on events like pull requests.
+- **Benefits:**
+  - Seamless integration with repositories.
+  - Extensive community support with reusable actions.
+
+---
+
+### Slide 5: Workflow Overview
+- **Name:** PR to Develop Validate to QABRAVO
+- **Trigger:** Pull requests opened or synchronized on `Demo_V1` branch.
+- **Paths:** Monitors changes in the `force-app` directory.
+  
+---
+
+### Slide 6: Jobs and Environment
+- **Job Name:** pr-to-main-branch-validate-to-QABRAVO
+- **Runs On:** A custom runner (`uhg-runner`) with checks to exclude dependabot actions.
+- **Environment:** Targets the `QABRAVO` Salesforce environment.
+
+---
+
+### Slide 7: Step 1 - Setup Node.js and Checkout Code
+- **Node.js Installation:** 
+  - Uses `actions/setup-node` to install Node.js version 18.
+- **Checkout Source Code:**
+  - `actions/checkout` retrieves the latest commit with full history.
+
+---
+
+### Slide 8: Step 2 - Set npm Registry
+- **NPM Registry Configuration:**
+  - Configures npm to use a specific internal registry for package installations.
+  - Sets the `SF_NPM_REGISTRY` environment variable.
+
+---
+
+### Slide 9: Step 3 - Install Salesforce CLI
+- **Salesforce CLI Installation:**
+  - Installs Salesforce CLI globally via npm.
+  - Sets environment variables to control auto-update and source member polling.
+
+---
+
+### Slide 10: Step 4 - Install Java and SFDX Scanner
+- **Java Installation:**
+  - Uses `actions/setup-java` to install Java version 17.
+- **SFDX Scanner:**
+  - Installs the SFDX scanner plugin for code analysis.
+
+---
+
+### Slide 11: Step 5 - Authenticate with QABRAVO
+- **Authentication:**
+  - Uses JWT-based authentication to log into the QABRAVO Salesforce org.
+  - Requires secrets for username and client ID.
+
+---
+
+### Slide 12: Step 6 - Delta Deployment Setup
+- **Install SFDX-Git-Delta Plugin:**
+  - Installs the plugin to create delta deployments based on changes.
+- **Create Delta Packages:**
+  - Generates a directory with changed metadata between the last two commits.
+
+---
+
+### Slide 13: Step 7 - Reading PR Body and Extracting Tests
+- **Read PR Body:**
+  - Extracts the body of the pull request to determine which tests to run.
+- **Environment Variable for Tests:**
+  - Sets the `APEX_TESTS` environment variable based on the extracted data.
+
+---
+
+### Slide 14: Step 8 - Check-only Deploy
+- **Check-only Deployment:**
+  - Deploys only the changes and runs the specified tests if they exist.
+  - Uses the `RunSpecifiedTests` test level for targeted testing.
+
+---
+
+### Slide 15: Step 9 - SARIF Code Scanning
+- **Code Scanning:**
+  - Scans the code in the delta directory using the SFDX scanner.
+  - Generates a SARIF file for the scan results.
+
+---
+
+### Slide 16: Step 10 - Upload SARIF File
+- **Upload SARIF Results:**
+  - Uses GitHub’s CodeQL action to upload the SARIF file for visibility in the PR.
+
+---
+
+### Slide 17: Step 11 - Email Notifications
+- **Success Email Notification:**
+  - Sends a success email to designated recipients if the workflow succeeds.
+- **Failure Email Notification:**
+  - Sends a failure email to recipients if the workflow fails.
+  
+---
+
+### Slide 18: Conclusion
+- **Summary of Key Points:**
+  - The workflow automates validation, deployment, and testing in Salesforce.
+  - Enables efficient code quality checks and feedback through notifications.
+- **Future Enhancements:**
+  - Continuous improvement of the deployment process and integration of more automated tests.
+
+---
+
+### Slide 19: Q&A
+- **Open Floor for Questions:** Engage with the audience for any queries or discussions.
+
+---
+
+### Additional Tips:
+- **Visuals:** Consider including diagrams or flowcharts to illustrate the workflow process visually.
+- **Live Demo:** If feasible, demonstrate a pull request and show the workflow executing in real-time.
+- **Resources:** Provide links to documentation for GitHub Actions and Salesforce CLI for further learning.
+
+Feel free to adjust the content based on your audience's familiarity with the topic and any specific details you'd like to emphasize! If you need more assistance or specific slide designs, let me know!
