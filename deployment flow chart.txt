@@ -1,0 +1,38 @@
+ Start
+   |
+Pull Request Trigger
+   |
+ Checkout Code
+   |
+Set Up Node.js
+   |
+Install Salesforce CLI
+   |
+   V
+ Install Java
+   |
+Authenticate with QABRAVO
+   |
+Install SFDX-Git-Delta Plugin
+   |
+Create Delta Packages
+   |
+Read PR Body
+   |
+Check for Tests?
+   |      |
+   |      |
+  Yes    No
+   |      |
+Deploy    Deploy
+with       with
+Specified  NoTestRun
+Tests
+   |
+ Scan Code
+   |
+Upload SARIF Results
+   |
+Send Notifications
+   |
+  End
