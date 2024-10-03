@@ -1,0 +1,386 @@
+Salesforce DevOps github actions detailed presentation
+
+
+Creating a detailed presentation on **Salesforce DevOps with GitHub Actions** involves explaining both Salesforce DevOps practices and how they can be implemented using GitHub Actions. Below is a structured approach you can follow to create the presentation. You can modify or expand sections based on your audience's familiarity with Salesforce, DevOps, and GitHub Actions.
+
+---
+
+### **Salesforce DevOps with GitHub Actions: Streamlining CI/CD**
+
+---
+
+### **Slide 1: Introduction**
+- **Title**: **Salesforce DevOps with GitHub Actions**
+- **Subtitle**: Optimizing CI/CD pipelines for Salesforce development
+- **Agenda**:  
+  1. Introduction to Salesforce DevOps  
+  2. Overview of GitHub Actions  
+  3. Salesforce DevOps Pipeline Requirements  
+  4. Implementing GitHub Actions for Salesforce CI/CD  
+  5. Demos and Best Practices  
+  6. Conclusion
+
+---
+
+### **Slide 2: What is Salesforce DevOps?**
+- **Key Points**:
+  - **DevOps Definition**: The collaboration between development and operations teams to streamline software delivery.
+  - **Why DevOps for Salesforce?**
+    - Salesforce's unique multi-tenant architecture.
+    - Enhanced collaboration among admins, developers, and testers.
+    - Automating deployment of metadata and custom code.
+  - **DevOps Goals for Salesforce**:
+    - Continuous Integration (CI).
+    - Continuous Deployment (CD).
+    - Improved release management and code quality.
+
+---
+
+### **Slide 3: Common Challenges in Salesforce Development**
+- **Key Points**:
+  - Managing **Metadata & Configurations**.
+  - Ensuring **Seamless Deployments** across multiple environments (Dev, QA, Prod).
+  - Handling **Manual Testing** and **Code Conflicts**.
+  - Limited use of version control by admins and non-developers.
+
+---
+
+### **Slide 4: Introduction to GitHub Actions**
+- **Key Points**:
+  - **What is GitHub Actions?**
+    - GitHub Actions is a CI/CD tool provided by GitHub to automate workflows.
+  - **How it Works**:
+    - **Workflows**: Automated processes defined in YAML.
+    - **Triggers**: Events that trigger actions (e.g., code commits, pull requests).
+    - **Actions**: Tasks executed as part of the workflow.
+  - **Why GitHub Actions for Salesforce**:
+    - Native GitHub integration.
+    - Community-contributed actions.
+    - Flexible and customizable.
+
+---
+
+### **Slide 5: Key Salesforce DevOps Pipeline Requirements**
+- **Key Points**:
+  1. **Version Control with Git**:
+      - Track metadata and configuration changes.
+  2. **Automated Testing**:
+      - Apex tests, UI tests (Selenium, Provar).
+  3. **Metadata Deployments**:
+      - Salesforce CLI (`sfdx force:source:deploy`).
+  4. **Environment Management**:
+      - Sandbox management, scratch org creation.
+  5. **Static Code Analysis**:
+      - Ensure code quality with tools like PMD and ESLint.
+
+---
+
+### **Slide 6: GitHub Actions Workflow for Salesforce**
+- **Key Points**:
+  - **Workflow Structure**:
+    - Define YAML configuration in `.github/workflows/`.
+    - Trigger workflows on code commit, PR, or schedule.
+  - **Sample Workflow Overview**:
+    - **Event Triggers**: e.g., pull request or push to a feature branch.
+    - **Build Jobs**:
+      1. **Checkout Code**: `actions/checkout@v2`
+      2. **Install Salesforce CLI**: `Install sfdx cli`
+      3. **Create Scratch Org**: `sfdx force:org:create`
+      4. **Deploy Metadata**: `sfdx force:source:deploy`
+      5. **Run Apex Tests**: `sfdx force:apex:test:run`
+    - **Outcome**: Validate metadata deployment and run tests in isolated scratch orgs.
+
+---
+
+### **Slide 7: Sample GitHub Actions YAML File**
+```yaml
+name: Salesforce CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - feature/*
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        
+      - name: Install Salesforce CLI
+        run: |
+          npm install sfdx-cli --global
+        
+      - name: Authenticate with Salesforce
+        run: |
+          echo ${{ secrets.SF_AUTH_URL }} | sfdx force:auth:sfdxurl:store -f -
+        
+      - name: Create Scratch Org
+        run: |
+          sfdx force:org:create -f config/project-scratch-def.json -a MyScratchOrg
+        
+      - name: Push Metadata
+        run: |
+          sfdx force:source:push -u MyScratchOrg
+        
+      - name: Run Apex Tests
+        run: |
+          sfdx force:apex:test:run -u MyScratchOrg --resultformat junit --outputdir test-results
+          
+      - name: Delete Scratch Org
+        if: always()
+        run: sfdx force:org:delete -u MyScratchOrg --noprompt
+```
+
+---
+
+### **Slide 8: Detailed Breakdown of YAML**
+- **Triggering Events**:
+  - Commits and Pull Requests to the `main` or `feature/*` branches.
+- **Job Steps**:
+  1. **Checkout**: Pulls code from GitHub.
+  2. **Install Salesforce CLI**: Ensures Salesforce CLI is available.
+  3. **Authenticate**: Uses GitHub secrets for secure authentication.
+  4. **Scratch Org Creation**: Temporary environment for isolated testing.
+  5. **Deploy Code**: Push Salesforce metadata into the scratch org.
+  6. **Run Tests**: Automated testing to validate code and metadata.
+  7. **Cleanup**: Deletes scratch org after tests.
+
+---
+
+### **Slide 9: Key Salesforce DevOps Tools in GitHub Actions**
+- **Key Tools**:
+  - **Salesforce CLI (SFDX)**: Core CLI for deployments, org management, testing.
+  - **PMD for Static Code Analysis**: Code quality and best practices.
+  - **Jest for Lightning Web Component (LWC) Testing**: Unit testing for LWCs.
+  - **GitHub Secrets**: Secure management of credentials (SF Auth URL).
+
+---
+
+### **Slide 10: Demo: GitHub Actions in Action**
+- **Live Demonstration** (if possible):
+  1. Trigger a GitHub Actions workflow on a code commit.
+  2. View logs of each step.
+  3. Show Apex test results and deployment summary.
+
+---
+
+### **Slide 11: Best Practices for Salesforce DevOps with GitHub Actions**
+- **Key Tips**:
+  1. **Use GitHub Secrets** for sensitive data (e.g., Salesforce auth tokens).
+  2. **Create Separate Workflows** for different pipelines (e.g., QA, Production).
+  3. **Automate Code Quality Checks** with PMD and static code analysis tools.
+  4. **Modularize Workflows**: Break large workflows into smaller, reusable jobs.
+  5. **Monitor CI/CD Pipelines**: Use alerts and dashboards for failed jobs.
+
+---
+
+### **Slide 12: Conclusion**
+- **Key Takeaways**:
+  - GitHub Actions streamlines Salesforce DevOps.
+  - Continuous Integration and Deployment improve release cycles and code quality.
+  - Best practices ensure smooth automation and efficient teamwork.
+
+---
+
+### **Slide 13: Q&A**
+- Invite questions from the audience.
+
+---
+
+This presentation template should give a comprehensive understanding of how Salesforce DevOps processes can be implemented using GitHub Actions. You can include screenshots, code snippets, or a live demo for more engagement.Creating a detailed presentation on **Salesforce DevOps with GitHub Actions** involves explaining both Salesforce DevOps practices and how they can be implemented using GitHub Actions. Below is a structured approach you can follow to create the presentation. You can modify or expand sections based on your audience's familiarity with Salesforce, DevOps, and GitHub Actions.
+
+---
+
+### **Salesforce DevOps with GitHub Actions: Streamlining CI/CD**
+
+---
+
+### **Slide 1: Introduction**
+- **Title**: **Salesforce DevOps with GitHub Actions**
+- **Subtitle**: Optimizing CI/CD pipelines for Salesforce development
+- **Agenda**:  
+  1. Introduction to Salesforce DevOps  
+  2. Overview of GitHub Actions  
+  3. Salesforce DevOps Pipeline Requirements  
+  4. Implementing GitHub Actions for Salesforce CI/CD  
+  5. Demos and Best Practices  
+  6. Conclusion
+
+---
+
+### **Slide 2: What is Salesforce DevOps?**
+- **Key Points**:
+  - **DevOps Definition**: The collaboration between development and operations teams to streamline software delivery.
+  - **Why DevOps for Salesforce?**
+    - Salesforce's unique multi-tenant architecture.
+    - Enhanced collaboration among admins, developers, and testers.
+    - Automating deployment of metadata and custom code.
+  - **DevOps Goals for Salesforce**:
+    - Continuous Integration (CI).
+    - Continuous Deployment (CD).
+    - Improved release management and code quality.
+
+---
+
+### **Slide 3: Common Challenges in Salesforce Development**
+- **Key Points**:
+  - Managing **Metadata & Configurations**.
+  - Ensuring **Seamless Deployments** across multiple environments (Dev, QA, Prod).
+  - Handling **Manual Testing** and **Code Conflicts**.
+  - Limited use of version control by admins and non-developers.
+
+---
+
+### **Slide 4: Introduction to GitHub Actions**
+- **Key Points**:
+  - **What is GitHub Actions?**
+    - GitHub Actions is a CI/CD tool provided by GitHub to automate workflows.
+  - **How it Works**:
+    - **Workflows**: Automated processes defined in YAML.
+    - **Triggers**: Events that trigger actions (e.g., code commits, pull requests).
+    - **Actions**: Tasks executed as part of the workflow.
+  - **Why GitHub Actions for Salesforce**:
+    - Native GitHub integration.
+    - Community-contributed actions.
+    - Flexible and customizable.
+
+---
+
+### **Slide 5: Key Salesforce DevOps Pipeline Requirements**
+- **Key Points**:
+  1. **Version Control with Git**:
+      - Track metadata and configuration changes.
+  2. **Automated Testing**:
+      - Apex tests, UI tests (Selenium, Provar).
+  3. **Metadata Deployments**:
+      - Salesforce CLI (`sfdx force:source:deploy`).
+  4. **Environment Management**:
+      - Sandbox management, scratch org creation.
+  5. **Static Code Analysis**:
+      - Ensure code quality with tools like PMD and ESLint.
+
+---
+
+### **Slide 6: GitHub Actions Workflow for Salesforce**
+- **Key Points**:
+  - **Workflow Structure**:
+    - Define YAML configuration in `.github/workflows/`.
+    - Trigger workflows on code commit, PR, or schedule.
+  - **Sample Workflow Overview**:
+    - **Event Triggers**: e.g., pull request or push to a feature branch.
+    - **Build Jobs**:
+      1. **Checkout Code**: `actions/checkout@v2`
+      2. **Install Salesforce CLI**: `Install sfdx cli`
+      3. **Create Scratch Org**: `sfdx force:org:create`
+      4. **Deploy Metadata**: `sfdx force:source:deploy`
+      5. **Run Apex Tests**: `sfdx force:apex:test:run`
+    - **Outcome**: Validate metadata deployment and run tests in isolated scratch orgs.
+
+---
+
+### **Slide 7: Sample GitHub Actions YAML File**
+```yaml
+name: Salesforce CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - feature/*
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        
+      - name: Install Salesforce CLI
+        run: |
+          npm install sfdx-cli --global
+        
+      - name: Authenticate with Salesforce
+        run: |
+          echo ${{ secrets.SF_AUTH_URL }} | sfdx force:auth:sfdxurl:store -f -
+        
+      - name: Create Scratch Org
+        run: |
+          sfdx force:org:create -f config/project-scratch-def.json -a MyScratchOrg
+        
+      - name: Push Metadata
+        run: |
+          sfdx force:source:push -u MyScratchOrg
+        
+      - name: Run Apex Tests
+        run: |
+          sfdx force:apex:test:run -u MyScratchOrg --resultformat junit --outputdir test-results
+          
+      - name: Delete Scratch Org
+        if: always()
+        run: sfdx force:org:delete -u MyScratchOrg --noprompt
+```
+
+---
+
+### **Slide 8: Detailed Breakdown of YAML**
+- **Triggering Events**:
+  - Commits and Pull Requests to the `main` or `feature/*` branches.
+- **Job Steps**:
+  1. **Checkout**: Pulls code from GitHub.
+  2. **Install Salesforce CLI**: Ensures Salesforce CLI is available.
+  3. **Authenticate**: Uses GitHub secrets for secure authentication.
+  4. **Scratch Org Creation**: Temporary environment for isolated testing.
+  5. **Deploy Code**: Push Salesforce metadata into the scratch org.
+  6. **Run Tests**: Automated testing to validate code and metadata.
+  7. **Cleanup**: Deletes scratch org after tests.
+
+---
+
+### **Slide 9: Key Salesforce DevOps Tools in GitHub Actions**
+- **Key Tools**:
+  - **Salesforce CLI (SFDX)**: Core CLI for deployments, org management, testing.
+  - **PMD for Static Code Analysis**: Code quality and best practices.
+  - **Jest for Lightning Web Component (LWC) Testing**: Unit testing for LWCs.
+  - **GitHub Secrets**: Secure management of credentials (SF Auth URL).
+
+---
+
+### **Slide 10: Demo: GitHub Actions in Action**
+- **Live Demonstration** (if possible):
+  1. Trigger a GitHub Actions workflow on a code commit.
+  2. View logs of each step.
+  3. Show Apex test results and deployment summary.
+
+---
+
+### **Slide 11: Best Practices for Salesforce DevOps with GitHub Actions**
+- **Key Tips**:
+  1. **Use GitHub Secrets** for sensitive data (e.g., Salesforce auth tokens).
+  2. **Create Separate Workflows** for different pipelines (e.g., QA, Production).
+  3. **Automate Code Quality Checks** with PMD and static code analysis tools.
+  4. **Modularize Workflows**: Break large workflows into smaller, reusable jobs.
+  5. **Monitor CI/CD Pipelines**: Use alerts and dashboards for failed jobs.
+
+---
+
+### **Slide 12: Conclusion**
+- **Key Takeaways**:
+  - GitHub Actions streamlines Salesforce DevOps.
+  - Continuous Integration and Deployment improve release cycles and code quality.
+  - Best practices ensure smooth automation and efficient teamwork.
+
+---
+
+### **Slide 13: Q&A**
+- Invite questions from the audience.
+
+---
+
+This presentation template should give a comprehensive understanding of how Salesforce DevOps processes can be implemented using GitHub Actions. You can include screenshots, code snippets, or a live demo for more engagement.
