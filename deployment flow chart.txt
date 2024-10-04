@@ -36,3 +36,33 @@ Upload SARIF Results
 Send Notifications
    |
   End
+
+
+
+Flowchart Components
+Start
+Pull Request Trigger
+Checks for changes in the force-app directory on the Demo_V1 branch.
+Checkout Code
+Checkout the latest commit.
+Set Up Node.js and npm Registry
+Install Salesforce CLI
+Install Java
+Authenticate with QABRAVO
+Install SFDX-Git-Delta Plugin
+Create Delta Packages
+Read PR Body
+Extract tests to run from the PR body.
+Check for Tests
+Decision: Are there tests specified?
+Yes: Perform check-only deploy with specified tests.
+No: Perform check-only deploy with NoTestRun.
+Scan Code
+Scan the delta directory for code quality issues.
+Upload SARIF Results
+Send Notifications
+Decision: Did the deployment succeed?
+Yes: Send success email.
+No: Send failure email.
+End
+
