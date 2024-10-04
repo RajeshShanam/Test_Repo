@@ -1,21 +1,21 @@
-Here is a detailed version of the **Salesforce GitHub Actions Pipeline** presentation speaker notes. Each slide's notes dive deeper into key concepts, tools, and steps to help you present confidently.
-
----
 
 ### **Slide 1: Title Slide**
 **Title**: *Salesforce GitHub Actions Delta Deployment Pipeline*
 
-**Speaker Notes**:
-"Hello and welcome! Today, we’ll be discussing how to implement a **Salesforce GitHub Actions Delta Deployment Pipeline**. This presentation will demonstrate how to automate Salesforce deployments using GitHub Actions, focusing on delta deployment, running selective tests, and automating notifications. We’ll go through the setup step-by-step and explore the pipeline flow that improves development efficiency and delivery speed in a Salesforce project."
 
+"Hi everyone, Today, we’ll be discussing how we implemented a GitHub Actions Delta Deployment Pipeline for Salesforce applications. This presentation will showcase on how to automate Salesforce deployments using GitHub Actions, we are mainly focusing on delta deployment(like Specific changes), running only selective tests while validation, and automating notifications like success and failure of the jobs. We’ll go through the implementation step-by-step and then after will see the live demo like committing the code and deploying changes into target org by using this cicd pipeline.
 ---
 
-### **Slide 2: Introduction to Salesforce DevOps**
-**Title**: *Salesforce DevOps with GitHub Actions*
+Slide 2: here is the agenda of this presentation. we will walk through all these steps one by one. 
+---
 
-**Speaker Notes**:
-"Let’s begin by talking about the role of **DevOps** in Salesforce projects. DevOps is a combination of **development and operations** practices aimed at shortening the software development life cycle. It provides continuous delivery of high-quality software.  
-In Salesforce, managing multiple environments (like sandboxes, production, etc.) can get complicated. DevOps introduces automated pipelines for deployment and testing. **GitHub Actions** is a powerful CI/CD tool that helps automate these pipelines, integrating well with Salesforce projects. We’ll explore how it simplifies deployment and testing processes, allowing teams to work faster and reduce errors."
+### **Slide 3:
+first will start with salesforce devops, salesforce devops role is like setting up a streamline process to collaborate between development teams and operations teams to streamlime a software delivery.
+it is a unique multi tenant architecture. it enhances collaboration between admins,  developers and testing teams and also automating the deployment of metadata and custom code. the goal of the salesforce devops is to Continuous integration and continuous deployment and improve release management and code quality.
+
+---
+slide 4: this is the overview of the github actions:
+as we all know GitHub Actions is a powerful CI/CD tool that helps automate the pipelines, it integrate well with Salesforce projects. it works based on workflows, triggers and actions like mentioned here in this slide. In Salesforce, managing multiple environments (like sandboxes, production, etc.) can get complicated to keep code in sync on accross application environments.this actions simplifies the deployment and testing process, allowing teams to work faster with less errors.
 
 ---
 
