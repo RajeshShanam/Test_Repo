@@ -19,95 +19,57 @@ as we all know GitHub Actions is a powerful CI/CD tool that helps automate the p
 
 ---
 
-### **Slide 3: Delta Deployment Pipeline Overview**
-**Title**: *Delta Deployment Pipeline*
+### **Slide 5: this is the breakdown of the workflow..
+workflow will define in YAML configuration in .github folder in root directory of the project. this workflow triggers on events like whenever we do pull request or code commit.
 
-**Speaker Notes**:
-"Now, let’s focus on the concept of a **delta deployment pipeline**. In a typical deployment process, developers often deploy the entire codebase or a large portion of metadata, which can be slow and prone to errors. However, with **delta deployment**, we deploy only the changes or ‘deltas’—the updated, added, or deleted metadata.  
-This pipeline identifies changes in the source code and creates a smaller deployment package, ensuring that only modified components are pushed to the Salesforce org. This method optimizes deployment speed and reduces the risk of introducing unintended changes. We’ll see this delta identification process in action later on."
+next will see the steps in the job. high level would be like check out the code, install required artifacts, authenticate to sf org and validate or deploy with specified test level in yaml file and then send notification.
 
 ---
 
-### **Slide 4: Pipeline Stages Overview**
-**Title**: *GitHub Actions Pipeline Stages*
-
-**Speaker Notes**:
-"Let’s walk through the key stages of our **GitHub Actions pipeline**. The workflow starts with a **Pull Request (PR) trigger**, which activates the pipeline when a developer opens or updates a PR in GitHub. The next step is **code checkout**, where we fetch the latest changes from the repository. After that, we set up **Node.js**, **npm**, and other required dependencies such as **Java** and the **Salesforce CLI**.  
-The pipeline then proceeds to create **delta packages**, followed by running tests based on the PR content, scanning the code for best practices, and finally, sending out notifications on the success or failure of the deployment. This pipeline is designed to be fully automated, ensuring seamless integration and delivery in Salesforce environments."
+### **Slide 6: this is our yaml file overview like what we are doing in our project. I will explain these steps in live demo later.
 
 ---
 
-### **Slide 5: Pull Request to Code Checkout**
-**Title**: *Pull Request and Code Checkout*
-
-**Speaker Notes**:
-"The process begins with a **Pull Request (PR)** event in GitHub. The pipeline is triggered automatically when a developer opens or updates a PR, specifically for changes in the `force-app` directory. The PR could include new features, bug fixes, or any metadata changes.  
-Once the pipeline is triggered, the code is **checked out** from the latest commit in the PR. This ensures that we are working with the most up-to-date code.  
-Next, we install **Node.js** (version 18) and set up the **npm registry**. This is important because Salesforce development often relies on node modules and package management to handle various tools and scripts."
+### **Slide 7: this is the screenshot of the successfull code validation in the actions pipeline.
 
 ---
 
-### **Slide 6: Creating Delta Packages**
-**Title**: *Delta Package Creation*
+### **Slide 8: some of the best practices included sf devops
+ like using github secrets for sensitive data and create workflow for each environment and automate code quality checks, breakdown large workflows into smaller and use of alerts like notifiactions
 
-**Speaker Notes**:
-"Now that we have our environment set up, we move on to creating **delta packages**. This is where the **SFDX Git Delta** plugin comes into play. The plugin compares the current state of the code with a previous state (often the last commit) to identify the changes—whether it’s new metadata, modifications, or deletions.  
-The plugin outputs a directory containing only these **delta components**. By focusing only on the changes, we speed up deployments and avoid errors that may come from deploying unnecessary metadata. This step ensures that only what’s needed gets deployed to the target Salesforce org."
 
 ---
 
-### **Slide 7: Deployment and Test Execution**
-**Title**: *Deployment and Test Execution*
+### **Slide 9 and 10: we will see the live demo now with logs in each step. and this is the steps in the workflow.
 
-**Speaker Notes**:
-"With our delta package ready, the next step is to validate the deployment by performing a **check-only deployment**. This means that we don’t actually deploy the changes yet; instead, we simulate the deployment to check for any issues.  
-At this stage, we also look at the PR content to determine whether there are any specific **Apex tests** that need to be run. If there are tests, we deploy the delta package and run only those specified tests.  
-Alternatively, if no tests are specified, the pipeline follows a different path, deploying the package with **NoTestRun**, meaning no tests are executed. This gives us flexibility and ensures the right tests are executed based on the nature of the changes."
 
 ---
 
-### **Slide 8: Code Scanning and SARIF Upload**
-**Title**: *Code Scanning with SFDX Scanner*
+### **Slide 10: here is the conclusion part and references which we followed while implementing this actions pipelines.
 
-**Speaker Notes**:
-"After the deployment validation, we run a **code scan** to ensure the code adheres to best practices. For this, we use the **SFDX Scanner**, which analyzes the delta package and flags any issues related to design, performance, or security.  
-The output of this scan is saved in a **SARIF** file, which is a standardized format for reporting static analysis results. Once the SARIF file is generated, it is uploaded to GitHub, where we can view the scan results directly within the PR. This step ensures our code is clean and follows the best practices before it gets deployed to production."
+-----------------------------------------------------------------------------------------------------------------------------------------------
 
----
+now will see the live demo, 
 
-### **Slide 9: Email Notifications**
-**Title**: *Email Notifications*
+this is the .github folder in root directory and here is the workflow file. 
 
-**Speaker Notes**:
-"Finally, based on the success or failure of the deployment, we send **email notifications** to the relevant stakeholders. If the deployment was successful, an email is sent to inform the team. In case of failure, another email is sent highlighting the issue, so the developers can investigate and fix it quickly.  
-These notifications ensure that the team is always aware of the status of the deployment and can take action accordingly."
+we are giving name as unique like PR to develop and validate in QA
 
----
+this workflow starts with a **Pull Request (PR) trigger**, which will initiate the pipeline when a developer opens PR or updates a PR in GitHub. specifically looks for the changes in the `force-app` folder.
 
-### **Slide 10: Full Pipeline Flowchart**
-**Title**: *Salesforce GitHub Actions Pipeline Flow*
+specifying the branch here where there is open on pull request
 
-**Speaker Notes**:
-"Let’s take a look at the complete pipeline flow. The flowchart visualizes all the stages we just discussed, from the **PR trigger** to **delta deployment**, **test execution**, **code scanning**, and **notifications**. This diagram provides a clear overview of how the pipeline automates and streamlines the deployment process.  
-As you can see, the flow starts with the PR, continues through code checks, and ends with notifications, ensuring a smooth CI/CD experience for Salesforce development."
+next below steps will execute like the code is **checked out** from the latest commit in the PR.This will ensures that we are working with the most up-to-date code.
 
----
+Next, we install **Node.js** (version 18) and set up the **npm registry**. This is important because Salesforce development relies on node modules and package management to handle various tools and scripts."
 
-### **Slide 11: Benefits and Next Steps**
-**Title**: *Benefits of Delta Deployment*
+Next, will install the all the dependencies like salesforce cli, sdfx scanner and installing java, sfdx delta plugin.
 
-**Speaker Notes**:
-"To wrap things up, let’s talk about the **benefits** of using this **delta deployment pipeline**. First, it significantly reduces deployment time by focusing only on changed components. Second, it allows for more targeted test execution, which saves time and computing resources. Third, by using automated code scanning, we ensure that our code follows best practices before it reaches production.  
-This pipeline reduces the risk of errors, accelerates delivery, and enhances the overall quality of your Salesforce applications."
+then will authenticate to salesforce org by using the connected app using jwt authentication.
 
----
+in typical saleforce deployments will deploy the entire codebase, which will take more time and slow down the processes like in pathway. hovever with delta deployment we only deploy changes which are added or modified metadata with specified test classes mentioned in PR body. we have created the PR template to follow all the develors and mentioned test classes in delta package in the given syntax in PR body.
 
-### **Slide 12: Q&A**
-**Title**: *Questions?*
+then create **delta packages**, followed by running test classes based on the PR content (NotestRun or testclasses with comma separated), scanning the code for best practices, and then, sending out notifications on the success or failure of the deployment. 
 
-**Speaker Notes**:
-"This concludes our walkthrough of the **Salesforce GitHub Actions Delta Deployment Pipeline**. Thank you for your attention, and I’m happy to take any questions you might have."
 
----
 
-These detailed speaker notes will guide you through each slide, offering technical depth, explanations of key tools and concepts, and context on how each step in the pipeline contributes to the overall Salesforce DevOps strategy.
