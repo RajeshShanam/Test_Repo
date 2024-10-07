@@ -1,0 +1,51 @@
+public class DeleteOldRecords {
+
+    public void deleteRecords() {
+        Date thirtyDaysAgo = Date.today().addDays(-30);
+        
+        // Query records from multiple objects that are older than 30 days
+        List<Account> accountsToDelete = [SELECT Id FROM Account WHERE CreatedDate <= :thirtyDaysAgo];
+        List<Contact> contactsToDelete = [SELECT Id FROM Contact WHERE CreatedDate <= :thirtyDaysAgo];
+        List<Opportunity> opportunitiesToDelete = [SELECT Id FROM Opportunity WHERE CreatedDate <= :thirtyDaysAgo];
+
+        try {
+            // Delete records from all objects
+            if (!accountsToDelete.isEmpty()) {
+                delete accountsToDelete;
+                System.debug(accountsToDelete.size() + ' Accounts deleted.');
+            }
+            
+            if (!contactsToDelete.isEmpty()) {
+                delete contactsToDelete;
+                System.debug(contactsToDelete.size() + ' Contacts deleted.');
+            }
+            
+            if (!opportunitiesToDelete.isEmpty()) {
+                delete opportunitiesToDelete;
+                System.debug(opportunitiesToDelete.size() + ' Opportunities deleted.');
+            }
+        } catch (DmlException e) {
+            System.debug('Error deleting records: ' + e.getMessage());
+        }
+    }
+}
+
+
+
+-----------------------------------------
+
+public class DeleteOldRecordsScheduler implements Schedulable {
+
+    public void execute(SchedulableContext sc) {
+        // Call the deleteRecords method to delete old records
+        DeleteOldRecords deleteJob = new DeleteOldRecords();
+        deleteJob.deleteRecords();
+    }
+}
+
+-----------------------------------------
+
+// Schedule the job to run every day at 2:00 AM
+String cronExpression = '0 0 2 * * ?'; // Cron expression for 2:00 AM daily
+DeleteOldRecordsScheduler scheduler = new DeleteOldRecordsScheduler();
+System.schedule('DailyDeleteJob', cronExpression, scheduler);
