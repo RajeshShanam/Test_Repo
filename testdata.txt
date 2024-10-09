@@ -138,3 +138,46 @@ String cronExp = '0 0 2 * * ?'; // This cron expression means daily at 2 AM
 System.schedule('DailyRecordDeletionJob', cronExp, new ScheduledRecordDeletion());
 ---------
 Scheduler: failed to execute scheduled job: jobId: 707WK00000GmaBe, class: common.apex.async.AsyncApexJobObject, reason: Cannot have more than 10 chunks in a single operation. Please rearrange the data to reduce chunking.
+
+---------------
+global class BatchDeleteOldRecords implements Database.Batchable<SObject> {
+    
+    global List<String> objectNames = new List<String>{'Account', 'Contact', 'Opportunity'}; // Add more objects as needed
+
+    global Database.QueryLocator start(Database.BatchableContext BC) {
+        // Combine multiple queries to get old records from multiple objects
+        List<String> queries = new List<String>();
+        for (String obj : objectNames) {
+            queries.add('SELECT Id FROM ' + obj + ' WHERE CreatedDate < LAST_N_DAYS:30');
+        }
+        
+        // Execute queries in sequence using UNION, but handle separately in batch execution
+        String combinedQuery = String.join(queries, ' UNION ');
+        return Database.getQueryLocator(combinedQuery);
+    }
+
+    global void execute(Database.BatchableContext BC, List<SObject> scope) {
+        try {
+            // Delete the current batch of records
+            delete scope;
+        } catch (DmlException e) {
+            // Log any errors during deletion
+            System.debug('Error while deleting records: ' + e.getMessage());
+        }
+    }
+
+    global void finish(Database.BatchableContext BC) {
+        System.debug('Batch job finished.');
+    }
+}
+-------
+global class ScheduledOldRecordCleanup implements Schedulable {
+    global void execute(SchedulableContext sc) {
+        // Instantiate the batch class and start the batch process
+        Database.executeBatch(new BatchDeleteOldRecords(), 200); // Batch size of 200 records per execution
+    }
+}
+------------------
+String cronExp = '0 0 2 * * ?'; // This cron expression means every day at 2 AM
+System.schedule('DailyOldRecordCleanupJob', cronExp, new ScheduledOldRecordCleanup());
+
