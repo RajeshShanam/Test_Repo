@@ -136,3 +136,5 @@ global class ScheduledRecordDeletion implements Schedulable {
 // Schedule the job to run daily at 2 AM
 String cronExp = '0 0 2 * * ?'; // This cron expression means daily at 2 AM
 System.schedule('DailyRecordDeletionJob', cronExp, new ScheduledRecordDeletion());
+---------
+Scheduler: failed to execute scheduled job: jobId: 707WK00000GmaBe, class: common.apex.async.AsyncApexJobObject, reason: Cannot have more than 10 chunks in a single operation. Please rearrange the data to reduce chunking.
