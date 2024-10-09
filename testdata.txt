@@ -49,3 +49,90 @@ public class DeleteOldRecordsScheduler implements Schedulable {
 String cronExpression = '0 0 2 * * ?'; // Cron expression for 2:00 AM daily
 DeleteOldRecordsScheduler scheduler = new DeleteOldRecordsScheduler();
 System.schedule('DailyDeleteJob', cronExpression, scheduler);
+
+
+-----------------------------------
+
+
+To delete data from multiple objects simultaneously in Salesforce using Apex, you can combine the queries for each object and delete the records in a single transaction. Below is a simplified example of Apex code that queries records from multiple objects (such as Account, Contact, and Opportunity) and deletes them in one go.
+
+Example Code:
+apex
+Copy code
+public class DeleteOldRecords {
+
+    // Method to delete records from multiple objects
+    public static void deleteOldRecords() {
+        // List to store all records to be deleted
+        List<SObject> recordsToDelete = new List<SObject>();
+
+        // Query records from the Account object that are older than 30 days
+        List<Account> oldAccounts = [SELECT Id FROM Account WHERE CreatedDate < LAST_N_DAYS:30];
+        recordsToDelete.addAll(oldAccounts);
+
+        // Query records from the Contact object that are older than 30 days
+        List<Contact> oldContacts = [SELECT Id FROM Contact WHERE CreatedDate < LAST_N_DAYS:30];
+        recordsToDelete.addAll(oldContacts);
+
+        // Query records from the Opportunity object that are older than 30 days
+        List<Opportunity> oldOpportunities = [SELECT Id FROM Opportunity WHERE CreatedDate < LAST_N_DAYS:30];
+        recordsToDelete.addAll(oldOpportunities);
+
+        // Add more queries here for other objects if needed, like Case, Lead, etc.
+        // List<Lead> oldLeads = [SELECT Id FROM Lead WHERE CreatedDate < LAST_N_DAYS:30];
+        // recordsToDelete.addAll(oldLeads);
+
+        // Check if there are records to delete
+        if (!recordsToDelete.isEmpty()) {
+            try {
+                // Delete all records in one transaction
+                delete recordsToDelete;
+                System.debug('Deleted ' + recordsToDelete.size() + ' records.');
+            } catch (DmlException e) {
+                // Handle any errors during deletion
+                System.debug('Error while deleting records: ' + e.getMessage());
+            }
+        } else {
+            System.debug('No records to delete.');
+        }
+    }
+}
+Explanation:
+Object Queries:
+
+This code queries the Account, Contact, and Opportunity objects to find records that were created more than 30 days ago (CreatedDate < LAST_N_DAYS:30).
+You can add more object queries to the code if you want to delete data from additional objects (such as Lead, Case, etc.).
+Collect Records:
+
+The results of the queries are added to a single list of SObject, called recordsToDelete, which can store records from different objects.
+Bulk Delete:
+
+Once all the records are gathered into the recordsToDelete list, the delete DML operation is performed to delete all records at once.
+The delete statement automatically handles the fact that the list contains records from different objects.
+Error Handling:
+
+The try-catch block ensures that if there is any issue during the deletion (such as permission errors or validation rule failures), the error will be logged, and the transaction will not fail silently.
+No Records Case:
+
+If no records are found that need to be deleted, the code simply logs a message indicating that there were no records to delete.
+Usage:
+To execute this method, you can either call it from an anonymous block in the developer console or schedule it using a scheduled job if you want it to run periodically.
+
+Example to Run in Developer Console:
+apex
+Copy code
+DeleteOldRecords.deleteOldRecords();
+Adding a Schedule (Optional):
+If you want to schedule this deletion process to run regularly, you can use the following code to create a scheduled job that runs at a specific time:
+
+apex
+Copy code
+global class ScheduledRecordDeletion implements Schedulable {
+    global void execute(SchedulableContext sc) {
+        DeleteOldRecords.deleteOldRecords();
+    }
+}
+
+// Schedule the job to run daily at 2 AM
+String cronExp = '0 0 2 * * ?'; // This cron expression means daily at 2 AM
+System.schedule('DailyRecordDeletionJob', cronExp, new ScheduledRecordDeletion());
