@@ -181,3 +181,47 @@ global class ScheduledOldRecordCleanup implements Schedulable {
 String cronExp = '0 0 2 * * ?'; // This cron expression means every day at 2 AM
 System.schedule('DailyOldRecordCleanupJob', cronExp, new ScheduledOldRecordCleanup());
 
+---------
+global class BatchDeleteOldRecords implements Database.Batchable<SObject> {
+    
+    global List<String> objectNames = new List<String>{'Account', 'Contact', 'Opportunity'}; // Add more objects as needed
+    global String currentObject; // Store the current object to be processed
+
+    global Database.QueryLocator start(Database.BatchableContext BC) {
+        // Get the first object to start the batch process
+        currentObject = objectNames.remove(0); // Remove and process the first object
+        return Database.getQueryLocator('SELECT Id FROM ' + currentObject + ' WHERE CreatedDate < LAST_N_DAYS:30');
+    }
+
+    global void execute(Database.BatchableContext BC, List<SObject> scope) {
+        try {
+            // Delete the current batch of records
+            delete scope;
+        } catch (DmlException e) {
+            // Log any errors during deletion
+            System.debug('Error while deleting records: ' + e.getMessage());
+        }
+    }
+
+    global void finish(Database.BatchableContext BC) {
+        // Check if there are more objects to process
+        if (!objectNames.isEmpty()) {
+            // Reschedule the batch for the next object
+            System.debug('Processing next object: ' + objectNames[0]);
+            Database.executeBatch(new BatchDeleteOldRecords(), 200);
+        } else {
+            System.debug('Batch job finished for all objects.');
+        }
+    }
+}
+------------
+global class ScheduledOldRecordCleanup implements Schedulable {
+    global void execute(SchedulableContext sc) {
+        Database.executeBatch(new BatchDeleteOldRecords(), 200); // Batch size of 200
+    }
+}
+-----------
+String cronExp = '0 0 0 * * ?'; // Every day at midnight
+System.schedule('Daily Old Record Cleanup', cronExp, new ScheduledOldRecordCleanup());
+
+
