@@ -226,3 +226,16 @@ System.schedule('Daily Old Record Cleanup', cronExp, new ScheduledOldRecordClean
 
 -----------
 System.StringException: You can't abort scheduled Apex jobs by calling System.abortJob with an AsyncApexJob ID. Call System.abortJob with the parent CronTrigger ID.
+
+------------------
+// Query the CronTrigger object for the scheduled batch job
+CronTrigger ct = [SELECT Id, CronJobDetail.Name FROM CronTrigger WHERE CronJobDetail.Name = 'BatchDeleteOldRecords' LIMIT 1];
+
+if (ct != null) {
+    // Abort the job using the CronTrigger ID
+    System.abortJob(ct.Id);
+    System.debug('Scheduled job aborted: ' + ct.CronJobDetail.Name);
+} else {
+    System.debug('No scheduled job found with the specified name.');
+}
+
