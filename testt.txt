@@ -4,10 +4,20 @@ Here's a detailed outline for your presentation, including how to structure it w
 
 ---
 
-I did check this vikas some time back.
-If we want to do this, we need to add all existing active preprod sandbox users into prod and create a public group for this users specifically and have to miantain it (Adding or removing the users). 
-since we deactivate all these preprod/ptwbfx users in prod all users flown from prod to sandbox will be in user inactive mode and again we have to anyways activate users in sandbox based on secure access of the users.
-if we keep active in prod then we need to pay the license
+I looked into this a while ago, and here’s a summary of what would be required if we decide to proceed with this setup:
+
+Adding Users to Production and Managing Access:
+
+To enable access to the pre-prod sandboxes, all currently active sandbox users would need to be added to Production.
+We’d need to create a specific public group in Production for these users to help us manage their permissions centrally. This group would allow easier management for adding or removing users as needed.
+Maintaining User Status Across Environments:
+
+Since pre-prod or PTWBFx users are typically deactivated in Production, adding them would mean these users will flow from Production to sandbox environments in an inactive state.
+To grant access in sandboxes, we’d still need to activate them within each sandbox, ensuring user access aligns with the necessary security requirements in those environments.
+License Implications:
+
+If we keep these users active in Production to avoid the need for reactivation each time, this would require additional Production licenses, incurring extra costs.
+Given these factors, we would need to evaluate if the cost of additional licenses aligns with our project’s budget and requirements. Please let me know if you'd like to discuss this further or explore any alternative approaches.
 
 ### **Salesforce DevOps with GitHub Actions Pipelines: Implementation Guide**
 
