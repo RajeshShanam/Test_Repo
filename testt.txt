@@ -4,6 +4,11 @@ Here's a detailed outline for your presentation, including how to structure it w
 
 ---
 
+I did check this vikas some time back.
+If we want to do this, we need to add all existing active preprod sandbox users into prod and create a public group for this users specifically and have to miantain it (Adding or removing the users). 
+since we deactivate all these preprod/ptwbfx users in prod all users flown from prod to sandbox will be in user inactive mode and again we have to anyways activate users in sandbox based on secure access of the users.
+if we keep active in prod then we need to pay the license
+
 ### **Salesforce DevOps with GitHub Actions Pipelines: Implementation Guide**
 
 ---
