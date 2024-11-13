@@ -175,3 +175,240 @@ jobs:
             The validation process for the deployment in Pathway QAALPHA has failed.
           to: purnendu_pratap@optum.com,rajesh.shanam@optum.com
           from: PATHWAY_DEVOPS_DL@ds.uhc.com
+
+
+
+---------------------------------------------------------------------------------------------------
+
+### Presentation Notes: How to Use the Deployment Pipeline
+
+This guide provides presentation notes to explain the deployment pipeline to developers. Use these notes during a team meeting or training session to ensure everyone understands how the pipeline works and how to use it effectively.
+
+---
+
+### Slide 1: **Introduction to the Deployment Pipeline**
+#### Key Points to Cover:
+
+
+Automate the validation of changes in the Salesforce `QAALPHA` environment.
+- **Trigger Points**:
+  - Runs when a pull request (PR) is created or updated.
+  - Validates only the changes in the `force-app` directory.
+- **Benefits**:
+  - Ensures code quality through automated validation.
+  - Saves time by running specific tests or performing static code analysis.
+  - Provides detailed feedback for fixing issues.
+
+---
+
+### Slide 2: **Pipeline Workflow Overview**
+#### Key Points to Cover:
+1. **Step 1: Environment Setup**
+   - Installs required tools: Node.js, Salesforce CLI, Java, and SFDX scanner.
+2. **Step 2: Authentication**
+   - Logs into the `QAALPHA` Salesforce org using JWT credentials.
+3. **Step 3: Delta Package Creation**
+   - Generates a package with only the changed metadata.
+4. **Step 4: Code Validation**
+   - Validates changes with or without running Apex tests.
+5. **Step 5: Static Code Analysis**
+   - Scans the code for design, performance, and best practices violations.
+6. **Step 6: Notifications**
+   - Sends success or failure emails with deployment results.
+
+---
+
+### Slide 3: **How Developers Can Use the Pipeline**
+#### Key Points to Cover:
+1. **Create a Pull Request**:
+   - Push your changes to a feature or bugfix branch.
+   - Create a pull request targeting `Pathway-MAIN-24.4.2test`.
+2. **Add Test Details to PR Body**:
+   - Specify Apex tests to run in the PR description:
+     ```
+     # Tests to Run
+     TestClass1, TestClass2, TestClass3
+     ```
+   - If no tests are mentioned, the pipeline defaults to `NoTestRun`.
+3. **Monitor the Pipeline**:
+   - Check the **GitHub Actions** tab for pipeline status.
+   - Review validation outcomes directly in the pull request.
+
+---
+
+### Slide 4: **Code Validation Process**
+#### Key Points to Cover:
+1. **Delta Deployment**:
+   - Only changed files are validated, reducing processing time.
+2. **Test-Level Options**:
+   - `RunSpecifiedTests`: Runs only the tests specified in the PR body.
+   - `NoTestRun`: Skips tests if no tests are mentioned.
+3. **Static Code Analysis**:
+   - SFDX scanner checks Apex code for:
+     - Design issues.
+     - Performance bottlenecks.
+     - Best practice violations.
+   - Results are uploaded to GitHub as a report.
+
+---
+
+### Slide 5: **Email Notifications**
+#### Key Points to Cover:
+1. **Success Notification**:
+   - Confirms that validation succeeded.
+   - Indicates readiness for deployment.
+2. **Failure Notification**:
+   - Explains why the validation failed (e.g., code errors, test failures).
+   - Points developers to logs and feedback for resolution.
+
+---
+
+### Slide 6: **Best Practices for Using the Pipeline**
+#### Key Points to Cover:
+1. **Prepare Code Before PR**:
+   - Run local tests.
+   - Perform a static code scan using SFDX scanner locally.
+2. **Follow PR Guidelines**:
+   - Use clear PR titles and descriptions.
+   - Specify relevant tests in the PR body.
+3. **Address Errors Promptly**:
+   - Use the logs provided in GitHub Actions or email notifications to debug and fix issues.
+4. **Communicate with the Team**:
+   - Collaborate with other developers to review and validate complex changes.
+
+---
+
+### Slide 7: **Common Issues & Troubleshooting**
+#### Key Points to Cover:
+1. **Validation Errors**:
+   - Cause: Compilation issues or test failures.
+   - Solution: Check logs in GitHub Actions and resolve errors locally.
+2. **Static Code Violations**:
+   - Cause: Design or performance issues flagged by the SFDX scanner.
+   - Solution: Fix violations and re-run the pipeline.
+3. **Authentication Errors**:
+   - Cause: Missing or incorrect credentials.
+   - Solution: Verify that GitHub secrets are configured correctly.
+
+---
+
+### Slide 8: **Q&A and Next Steps**
+#### Key Points to Cover:
+- **Questions**:
+  - Address team queries about using the pipeline.
+  - Clarify specific scenarios or edge cases.
+- **Next Steps**:
+  - Encourage developers to test the pipeline with their current PRs.
+  - Share documentation or links for further reading.
+  - Offer follow-up training or support if needed.
+
+---
+
+### Additional Notes for Presenters:
+- Use examples of recent pull requests or validation logs for context.
+- Highlight how this pipeline streamlines workflows and improves team efficiency.
+- Engage developers by encouraging them to share feedback or suggest improvements.
+
+
+
+-------------------------------------------
+
+
+### Presentation Notes: Transition from Jenkins to GitHub Actions Deployment Pipeline
+
+---
+
+#### **Introduction**
+- **Purpose of the Migration**: 
+  - We're transitioning from our Jenkins deployment pipeline to GitHub Actions.
+  - The goal is to streamline our CI/CD process by leveraging GitHub's native tools for enhanced integration, reliability, and ease of use.
+  - This transition ensures a more cohesive developer experience with GitHub repositories and improves collaboration across teams.
+
+---
+
+#### **Why GitHub Actions?**
+- **Integration with GitHub**:
+  - GitHub Actions is tightly integrated with our GitHub repositories, enabling automated workflows triggered directly by repository events like pull requests and merges.
+- **Simplified Workflow**:
+  - No need for external servers (e.g., Jenkins) to manage CI/CD.
+  - All configurations are stored as code within the repository, ensuring better traceability and easier updates.
+- **Performance & Scalability**:
+  - Reduced maintenance overhead as GitHub Actions uses virtual runners.
+  - Faster execution due to GitHub-hosted environments and optimized caching.
+
+---
+
+#### **Pipeline Overview**
+- **Trigger Events**:
+  - The pipeline is triggered when a pull request is opened or updated for a specific branch (`Pathway-MAIN-24.4.2test`).
+  - Only changes in the `force-app` directory are considered for validation, reducing unnecessary computations.
+
+- **Validation Workflow**:
+  - Node.js, Java, Salesforce CLI, and additional tools (e.g., SFDX Scanner) are installed in the virtual runner.
+  - SFDX Git Delta is used to identify and validate only the changed metadata, minimizing the validation scope.
+
+- **Key Steps**:
+  1. **Environment Setup**:
+     - Configures Node.js, Java, and Salesforce CLI.
+     - Authenticates to the target environment (`QAALPHA`).
+  2. **Delta Detection**:
+     - Identifies new, modified, or deleted components using `sfdx-git-delta`.
+     - This ensures that only relevant changes are validated or deployed.
+  3. **Test Execution**:
+     - Executes specified Apex tests as defined in the pull request body.
+     - If no specific tests are provided, the `NoTestRun` mode is used.
+  4. **Code Quality Scan**:
+     - Scans the delta changes for issues related to design, best practices, and performance.
+  5. **Feedback Loop**:
+     - Sends success or failure emails to the appropriate stakeholders for immediate action.
+
+---
+
+#### **Benefits for Developers**
+- **Ease of Use**:
+  - No additional learning curve—GitHub Actions runs directly from your repository.
+  - Simple YAML-based configuration that can be modified and reviewed within PRs.
+- **Better Feedback**:
+  - Developers receive immediate validation results.
+  - Apex test failures and scan results are visible directly in the pull request.
+- **Improved Performance**:
+  - Delta-based deployments reduce validation and deployment times significantly.
+- **Centralized Automation**:
+  - No need to toggle between Jenkins and GitHub; everything happens in GitHub.
+
+---
+
+#### **Migration Process**
+1. **Understanding the New Pipeline**:
+   - Developers will no longer use Jenkins. All deployment-related triggers and actions will be managed through GitHub Actions.
+   - The workflow file (`.github/workflows/`) replaces Jenkins pipeline scripts.
+
+2. **Access and Setup**:
+   - Ensure proper permissions for your branch and repository access.
+   - Use the `pull_request` mechanism to trigger validations and deployments.
+
+3. **Key Responsibilities**:
+   - Include necessary test cases in your PR body for targeted validation.
+   - Commit changes only to the `force-app` directory to optimize the pipeline.
+
+4. **Training and Support**:
+   - Training sessions will be scheduled to walk developers through GitHub Actions syntax and usage.
+   - Support resources will be provided, including troubleshooting guides and Slack channels for assistance.
+
+---
+
+#### **Questions for Developers**
+- What challenges have you faced with Jenkins that this transition can address?
+- Are there specific scenarios or custom requirements we should consider for your teams?
+- Would you like to participate in feedback sessions to improve the GitHub Actions pipeline?
+
+---
+
+#### **Conclusion**
+- This migration is a step toward modernizing our CI/CD practices.
+- GitHub Actions offers seamless integration, better performance, and centralized control, making deployments smoother for everyone.
+- We're here to support you through this transition and ensure you have all the tools you need to succeed.
+
+--- 
+
+These notes provide a detailed explanation of the migration, benefits, and expectations, helping developers understand and adopt the new pipeline.
