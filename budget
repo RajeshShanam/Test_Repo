@@ -1,9 +1,177 @@
-Hello Team, 
+# Unique name for this workflow
+name: PR to Develop Validate to QAALPHA
 
-We have taken rental truck from budget with  reservation number  **** at bloomington minnsota location and drop off at dallas Texas. While coming from Bloomington to Dallas our truct two tires got flatted and we have waited for more than 3 days to get it repaired. during that 3 days I have called plenty of times to customer service to arrange a replacement truct but budget did not arranged a replacement truct instead they told me to stay in near by hotel and budget will reimberse my hotel, food expenses of me and wife and compensation for not using the truck for 3 days. due to this budget  inconvirnece I had to cancel all my work for that 3 days and lost my income.
+# Definition when the workflow should run
+on:
 
-I urge you to please help me in reimburse for my 3 days hotel, towing  and food expenses and compensation for not using the truck for 3 days. 
+ # The workflow will run whenever an event happens on a pull request.
+  pull_request:
+  
+  # The events are that a PR is opened, or when a commit is pushed to a branch that has an existing pull request.
+    types:
+      - opened
+      - synchronize
+    
+   # We only care about changes to the force-app directory, which is the root directory of the sfdx project.
+    paths:
+      - force-app/**
 
-Attched hotel and towing receipts where I stayed and for food we spent more tham $ 300 dollars.
+    # The branches filter allows to specify that this workflow should only.  
+    branches:
+      - Pathway-MAIN-24.4.2test
 
-Please give me a call on +1 203-993-9647 if you have any questions in this regards.
+# Jobs to be executed when the above conditions are met
+jobs:
+ # This is the name of the job. You can give it whatever name you want
+  pr-to-main-branch-validate-to-QAALPHA:
+
+   # Specify which OS this VM should run on.
+    runs-on: uhg-runner 
+    if: ${{ github.actor != 'dependabot[bot]' }}
+    
+    environment: QAALPHA
+    
+    steps:
+    # Now we install nodejs in the VM, and specify version 18
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+      
+    # Checkout the Source code from the latest commit
+      - name: Checkout source code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          
+      - name: Set npm registry and SF_NPM_REGISTRY environment variable  
+        run: |  
+          sudo npm config set registry https://repo1.uhc.com/artifactory/api/npm/npm-virtual/ --global  
+          echo "SF_NPM_REGISTRY=https://repo1.uhc.com/artifactory/api/npm/npm-virtual/" >> $GITHUB_ENV
+ 
+      - name: Install Salesforce CLI
+        run: |
+          sudo npm install @salesforce/cli --global
+          sf --version
+          echo "-- Set Salesforce CLI environment variables --"
+          echo "SF_DISABLE_AUTOUPDATE=true" >> $GITHUB_ENV
+          echo "SF_DISABLE_SOURCE_MEMBER_POLLING=true" >> $GITHUB_ENV
+
+          
+      # Install java as it is required for the next step
+      - name: 'Installing java'
+        uses: actions/setup-java@v4
+        with:
+          java-version: "17"
+          distribution: "temurin"
+
+
+       # Install SFDX scanner
+      - name: 'Installing SFDX scanner'
+        run: sfdx plugins:install @salesforce/sfdx-scanner
+      - name: Authenticate QAALPHA
+        run: |
+          sf org login jwt --username ${{ secrets.QAALPHA_USERNAME }} --jwt-key-file files/server.key --client-id ${{ secrets.QAALPHA_CONSUMERKEY }}
+
+
+      # Install the SFDX-Git-Delta plugin
+      - name: Installing sfdx git delta
+        run: |
+          echo y | sfdx plugins:install sfdx-git-delta
+          sf plugins --core
+
+      # Use SFDX Git Delta to create a directory with only the metadata that has changed.  
+      - name: Create delta packages for new, modified or deleted metadata
+        run: |
+          mkdir changed-sourcess
+                  sf sgd source delta --to "HEAD" --from "HEAD^" --output changed-sourcess/ --generate-delta --source force-app/ 
+
+
+      - name: 'Read PR Body'
+        env:
+          PR_BODY: ${{github.event.pull_request.body}}
+        run: |
+            echo $PR_BODY > ./pr_body.txt
+            node ./parsePR.js              
+            TESTS=$(cat testsToRun.txt)       
+            echo "APEX_TESTS=$TESTS" >> $GITHUB_ENV     
+
+      # Install java as it is required for the next step
+      - name: 'Installing java'
+        uses: actions/setup-java@v4
+        with:
+          java-version: "17"
+          distribution: "temurin"
+
+       # Install SFDX scanner
+      - name: 'Installing SFDX scanner'
+        run: sfdx plugins:install @salesforce/sfdx-scanner
+
+        
+      # We do a check-only deploy and we only run the tests specified in the PR
+      - name: 'Check-only deploy delta changes - run specified tests'
+        if: ${{ env.APEX_TESTS != 'NoTestRun' }}
+        run: |
+            echo ${{env.APEX_TESTS}}
+            echo ${{env.QAALPHA_USERNAME}}
+            sf project deploy validate --source-dir changed-sourcess/force-app --test-level RunSpecifiedTests --tests ${{env.APEX_TESTS}} --target-org ${{ secrets.QAALPHA_USERNAME }} --verbose
+
+
+      # If the env variable equals NoTestRun, we run NoTestRun
+      - name: 'Check-only deploy delta changes - NoTestRun'
+        if: ${{ env.APEX_TESTS == 'NoTestRun' }}
+        run: |
+
+            sf project deploy validate --source-dir changed-sourcess/force-app --test-level NoTestRun --target-org ${{ secrets.QAALPHA_USERNAME }} --verbose
+
+
+      # destructive changes script to delete the classes from target org
+      # - name: 'Deploy destructive changes (if any)'
+      #  run: sfdx force:mdapi:deploy -d "changed-sources/destructiveChanges" --ignorewarnings 
+
+
+
+     # Now we can use the sfdx scanner to scan the code in the delta directory
+     # The output of the scan is stored in a file called apexScanResults.sarif
+     # The .sarif file can later be uploaded to github, so that we can see the 
+     # results of the scan directly from the PR.
+      - name: 'Scan code'
+        run: |
+                  cd changed-sources
+                  sfdx scanner:run --format sarif --target './**/*.cls' --category "Design,Best Practices,Performance" --outfile 'apexScanResults.sarif'  
+                  cd ..
+
+
+      # Now we upload the .sarif file as explained in the previous step
+      - name: Upload SARIF file
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+         sarif_file: changed-sources/apexScanResults.sarif
+
+
+
+      - name: Send Success email
+        uses: uhg-actions/action-send-mail@v3
+        if: success() 
+        with:
+          server_address: elr-smtp-relay-k8s.optum.com
+          server_port: 25
+          secure: false
+          subject: |
+            Pathway SFDX QAALPHA Validation - Successful
+          body: |
+            The validation process for the deployment in Pathway QAALPHA has Successful.
+          to: purnendu_pratap@optum.com,rajesh.shanam@optum.com
+          from: PATHWAY_DEVOPS_DL@ds.uhc.com
+         
+      - name: Send failure email
+        uses: uhg-actions/action-send-mail@v3
+        if: failure()
+        with:
+          server_address: elr-smtp-relay-k8s.optum.com
+          server_port: 25
+          secure: false
+          subject: Pathway SFDX QAALPHA Validation - Failed
+          body: |
+            The validation process for the deployment in Pathway QAALPHA has failed.
+          to: purnendu_pratap@optum.com,rajesh.shanam@optum.com
+          from: PATHWAY_DEVOPS_DL@ds.uhc.com
