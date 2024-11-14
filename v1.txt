@@ -1,3 +1,62 @@
+Assuming we have one release altogether:
+
+01/24 Pathway:
+•	E2E Environment:
+o	Usage Period: From 11/23 to 01/24.
+o	Purpose: Dedicated for end to end regression testing, UAT and any ETL testing that might be needed.
+•	Preprod Environment:
+o	Usage Period: Throughout the testing phase for the 01/24 release.
+o	Purpose: Used for performance testing and data changes testing to ensure the changes are ready for production.
+
+Assuming we have two releases:
+
+12/13 Pathway:
+•	E2E Environment:
+o	Usage Period: Until 12/13.
+o	Purpose: Dedicated for end to end regression testing, UAT and any ETL testing that might be needed.
+•	Preprod Environment:
+o	Usage Period: Throughout the testing phase for the 12/13 release.
+o	Purpose: Used for performance testing and data changes testing to ensure the changes are ready for production.
+
+01/24 LTSS+Pathway:
+•	E2E Environment:
+o	Usage Period: From 12/14 to 01/24.
+o	Purpose: Dedicated for LTSS End to End testing and ETL testing.
+•	Preprod Environment:
+o	Usage Period: From 12/14 to 01/24.
+o	Purpose: Specifically used for LTSS performance testing to ensure the system can handle the expected load and performance requirements.
+
+
+
+Assuming we have Three releases:
+
+12/13 Release:
+•	E2E Environment:
+o	Usage Period: Until 12/6.
+o	Purpose: Dedicated for regression testing and any ETL processes that might be needed.
+•	Preprod Environment:
+o	Usage Period: Throughout the testing phase for the 12/13 release.
+o	Purpose: Used for all types of testing activities to ensure the release is ready for production.
+
+01/15 LTSS (on demand):
+•	E2E Environment:
+o	Usage Period: From 12/7 to 01/10.
+o	Purpose: Dedicated for LTSS End to End testing and ETL testing.
+•	Preprod Environment:
+o	Usage Period: From 12/13 to 01/10.
+o	Purpose: Specifically used for LTSS performance testing to ensure the system can handle the expected load and performance requirements.
+
+01/31:
+•	E2E Environment:
+o	Usage Period: From 01/15 to 01/31.
+o	Purpose: Dedicated for LTSS End to End testing and ETL testing.
+•	Preprod Environment:
+o	Usage Period: From 01/15 to 01/31.
+o	Purpose: Used for all testing activities to prepare for the 01/31 release.
+
+
+---------------------------------------------
+
 Salesforce DevOps github actions detailed presentation
 
 
