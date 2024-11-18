@@ -1,4 +1,23 @@
- Start
+1. Implemented scalable CI/CD pipeline using salesforce DX and GitHub Actions which enables build, test class execution within PR and sfdc scanner for Pathway, SOL and Compass. Reduced deployment time to more than 30% and introduced improved code review steps with pull request templates in GitHub actions.
+2. Configured Actions pipeline to automatically execute all relevant test classes on each pull request and before every deployment to QA environment.
+3. Coordinated and Ensured that the existing salesforce environments customizations, integrations and managed packages are compatible with Hyperforce architecture for smooth migration to Hyperforce instances.
+4. Performed repositories migration from GitHub on prem to GitHub cloud environment and updated all existing dependencies like jenkins ci/cd pipeline and webhooks and acheived 100% adoption rate accross ccm code repositories (pathway).
+5. Coordinated and performed impacted areas for salesforce release changes in preview type sandboxes and ensured smooth on going salesforce release seasonal changes. 
+6. Participated and tracked down the CodeQL vulnerabilities strategically and successfully released in salesforce environments.
+7. Coordinated and narrowed down the salesforce api version  changes and put process in place to change all the upcoming components version to latest.
+8. Facilitated DevOps best practices across Salesforce development teams and ensuring alignment on branching, merging and deployment standards.
+9. Performed checkmarx security scan frequently to achieve compliance with salesforce COE governance requirements. 
+
+ 
+10. Participated in Prod deployment implementation sessions and successfully deployed major and hot fixes into Prod.
+ 
+11. Adhered all salesforce governance body implementations in pathway sol and compass projects
+ 
+12. Adhere all Salesforce release updates and coordinate with teams for ripple effects to our applications and works towords the soluction of the impacted areas
+
+
+-------------------------------
+Start
    |
 Pull Request Trigger
    |
